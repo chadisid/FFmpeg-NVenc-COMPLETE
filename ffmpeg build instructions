@@ -1,42 +1,193 @@
-sudo cp nvenc_5.0.1_sdk/Samples/common/inc/*.h
-/usr/local/include
+                             sudo cp nvenc_5.0.1_sdk/Samples/common/inc/*.h
+                                   /usr/local/include
+
+***WELCOME ALL***
+
+Today we will Build a WORKING and UP TO DATE FFmpeg with NVencoding + Cuda + OpenGL + libnpp + everything else
+important also WORKING + UP TO DATE built from source. I will also be building the current up to date OBS for Ubuntu, Mint, Debian for use with NVenc. 
+Guide will still work fine ANY OTHER Linux version aside from the packagemanager commands for the depends... 
 
 
-Build a WORKING and UP TO DATE FFmpeg with NVencoding + Cuda + OpenGL + libnpp + everything else important also WORKING and UP TO DATE built from source. 
+***First before we start anything we will need three things installed, built and placed into specific paths:*** 
+
+1: Nvidia driver: :http://us.download.nvidia.com/XFree86/Linux-x86_64/375.39/NVIDIA-Linux-x86_64-375.39.run
+
+2: Cuda 7.5: (Officially supports NVenc and Cuda)  http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+
+3: Video_Codec_SDK: https://developer.nvidia.com/designworks/video_codec_sdk/downloads/v7.1
 
 
-GET SDK 7.1.9 FROM NVIDIA AND BUILD THE SDK:
+Now comes the fun! First we need to install Nvidia diver:
 
-$: cd Downloads
+Press Ctrl+Alt+F1 at log-in screen (type in user-name and password into command line) 
+*No Apple Keyboards* (You may be able to change that in the keyboard settings, but it might be a little harder without GUI)
 
-/Downloads$: wget https://developer.nvidia.com/designworks/video_codec_sdk/downloads/v7.1
+$: sudo nano /etc/modprobe.d/blacklist.conf
+
+(Add the following lines to the bottom of the file)
+
+blacklist amd76x_edac
+blacklist vga16fb
+blacklist nouveau
+blacklist rivafb
+blacklist nvidiafb
+blacklist rivatv
+
+(Hold Control + o then hit Enter to save)
+
+(Hold Control + x then hit Enter to exit)
+
+sudo apt-get remove --purge nvidia*
+
+sudo service lightdm stop
+
+ (for Mint its "sudo service mdm stop" Somtimes you will need to kill lightdm other ways just google it,
+bottom line xsever cannot be running while installing this driver)
+
+$: cd ~/Downloads
+
+$: wget us.download.nvidia.com/XFree86/Linux-x86_64/375.39/NVIDIA-Linux-x86_64-375.39.run
+
+$: sudo chmod +x NVIDIA-Linux-x86_64-375.39.run
+
+$: sudo ./NVIDIA-Linux-x86_64-375.39.run
+
+$: sudo nvidia-xconfig
+
+$: sudo update-initramfs -u
+
+$: sudo reboot
+
+(When computer reboots we cant start inatalling the Video_Codec_SDK)
 
 
+*** Installing Video_Codec_SDK ***
 
-
-$: cd ~/Downloads/Video_Codec_SDK_7.1.9/Samples
-
-$: make
-
- now move files where they need to be: 
-
-
-
-
-
-$ sudo cp ~/Downloads/Video_Codec_SDK_7.1.9/Samples/common/inc/*.h /usr/local/include
-
-usr/local/cuda/include  mv cuda.h to usr/local/include make sure you have installed cuda 7.5 already
-
- install cuda and find cuda.h and cuvid.h and also put the inside /usr/local/include
-
- Build all sources for FFMPG (OPTIONAL BUT RECCOMENDED)
-
+           $: cd Downloads
+ /Downloads$: firefox https://developer.nvidia.com/designworks/video_codec_sdk/downloads/v7.1
  
-BUILDING FFMPEG FRMOM SOURCE: https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
+ (Just accept the EULA and Download, after Download finished be sure to place SDK inside your Download folder)
+ 
+           $: cd Downloads
+ /Downloads$: unzip Video_Codec_SDK_7.1.9
+ /Downloads$: cd ~/Video_Codec_SDK_7.1.9/Samples
+           $: make
+           $: sudo cp ~/Downloads/Video_Codec_SDK_7.1.9/Samples/common/inc/*.h /usr/local/include
+
+***Now we install Cuda 7.5 and move those files to the proper paths***
+ 
+$: sudo service lightdm stop
+
+ for Mint the command is:
+
+$: sudo service mdm stop
+
+(SOMETIMES YOU NEED TO FIND OTHER METHODS TO KILL XSERVER)
+
+$: cd ~/Downloads
+
+$: wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+
+$: sudo chmod +x cuda_7.5.18_linux.run
+
+$: sudo ./cuda_7.5.18_linux.run --override
+
+(Just say yes to the unsupported configuartion the compiler changed but worked fine anyway with the --override flag)
+
+(Say NO to installing the driver! but yes to the SDK and the Paths for install locations are fine at default)
+
+(Once the install is finished we need to copy our cuda file to the proper path.
+
+$: sudo cp ~/usr/local/cuda/
+/cuda.h /usr/local/include
+
+$: exit
+
+Done for now... You are set up and ready to build FFmpeg with a shit load of extra options including NVencoding AKA ShadowPlay!
+
+
+BUILDING FFMPEG FRMOM SOURCE WITH PRPER OPTIONS!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 STARTFRESH: rm -rf ~/ffmpeg_build ~/ffmpeg_sources ~/bin/{ffmpeg,ffprobe,ffplay,ffserver,vsyasm,x264,x265,yasm,ytasm}
-
 
 $ cd ~/ffmpeg_sources
 $ wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
