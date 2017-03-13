@@ -1,9 +1,10 @@
 
 ***WELCOME ALL***
 
-Today we will Build a WORKING and UP TO DATE FFmpeg with NVencoding + Cuda + OpenGL + libnpp + everything else
-important also WORKING + UP TO DATE built from source. I will also be building the current up to date OBS for Ubuntu, Mint, Debian for use with NVenc. 
-Guide will still work fine ANY OTHER Linux version aside from the packagemanager commands for the depends... 
+Today we will build a COMPLETE and COMPLETELY-WORKING, UP TO DATE, FFmpeg with NVencoding + Cuda + OpenGL + OpenCL + libnpp + everything else you could possibly want.
+
+WORKING + UP TO DATE build guide from source, I will also be building the current up to date OBS for Ubuntu, Mint, Debian for use with NVenc also.
+
 
 
 ***First before we start anything we will need three things installed, built and placed into specific paths:*** 
@@ -15,10 +16,18 @@ Guide will still work fine ANY OTHER Linux version aside from the packagemanager
 3: Video_Codec_SDK: https://developer.nvidia.com/designworks/video_codec_sdk/downloads/v7.1
 
 
-Now comes the fun! First we need to install Nvidia diver:
+***Now comes the fun! First we need to install Nvidia diver:
 
 Press Ctrl+Alt+F1 at log-in screen (type in user-name and password into command line) 
 *No Apple Keyboards* (You may be able to change that in the keyboard settings, but it might be a little harder without GUI)
+
+(Still cant drop to a shell without Xserver? Press "e" at grub menu to edit the boot options.
+
+(adding "nomodeset" to your grub boot options right after "quiet splash" near the bottom line will help you press f10 to finish booting)
+
+(Now log in with your username and password to the CLI and now we can start issuing the commands)
+
+$: 
 
 $: sudo nano /etc/modprobe.d/blacklist.conf
 
@@ -35,9 +44,9 @@ blacklist rivatv
 
 (Hold Control + x then hit Enter to exit)
 
-sudo apt-get remove --purge nvidia*
+$: sudo apt-get remove --purge nvidia*
 
-sudo service lightdm stop
+$: sudo service lightdm stop
 
  (for Mint its "sudo service mdm stop" Somtimes you will need to kill lightdm other ways just google it,
 bottom line xsever cannot be running while installing this driver)
@@ -100,9 +109,14 @@ $: sudo ./cuda_7.5.18_linux.run --override
 $: sudo cp ~/usr/local/cuda/include
 /cuda.h /usr/local/include
 
-$: sudo cp ~/usr/local/cuda/include/CL/*.h /usr/local/include                  
+$: sudo cp ~/usr/local/cuda/include/CL/*.h /usr/local/include              
+ 
+(if above command doesn't work just run:
+$: sudo nautilus 
+(to open a GUI file-manager with root access! This makes life much easyier!
 
-$: exit
+Just manually move those files that end in .h at /usr/local/cuda/include/CL/ to /usr/local/include and you are good.
+
 
 Done for now... You are set up and ready to build FFmpeg with a shit load of extra options including NVencoding AKA ShadowPlay!
 
@@ -112,212 +126,100 @@ Done for now... You are set up and ready to build FFmpeg with a shit load of ext
 
 This guide for supported releases of Ubuntu, Debian, and Linux Mint will provide a local install of the latest FFmpeg tools and libraries including several external encoding and decoding libraries (codecs). This will not interfere with repository packages.
 
-You may also refer to the Generic FFmpeg Compilation Guide for additional information.
-
-Recent ​static builds are also available for lazy people or those who are unable to compile. The static builds do not support non-free encoders.
-
-Note: FFmpeg has returned in Ubuntu 15.04 Vivid Vervet. You may still wish to compile if you experience a bug or want to customize your build, and it will not interfere with the ffmpeg package in the repository.
-Get the Dependencies
-
-Copy and paste the whole code box for each step. First install the dependencies:
-
-sudo apt-get update
-sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev \
-  libsdl2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev \
-  libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev
-
-Note: Server users can omit the ffplay and x11grab dependencies: libsdl2-dev libva-dev libvdpau-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev.
-
-Now make a directory for the source files that will be downloaded later in this guide:
-
-mkdir ~/ffmpeg_sources
-
-Compilation & Installation
-
-You can compile ffmpeg to your liking. If you do not require certain encoders you may skip the relevant section and then remove the appropriate ./configure option in FFmpeg. For example, if libopus is not needed, then skip that section and then remove --enable-libopus from the Install FFmpeg section.
-
-This guide is designed to be non-intrusive and will create several directories in your home directory:
-
-    ffmpeg_sources – Where the source files will be downloaded. This can be deleted if desired when finished with the guide.
-    ffmpeg_build – Where the files will be built and libraries installed. This can be deleted if desired when finished with the guide.
-    bin – Where the resulting binaries (ffmpeg, ffplay, ffserver, x264, and yasm) will be installed. 
-
-You can easily undo any of this as shown in Reverting Changes Made by This Guide.
-Yasm
-
-An assembler for x86 optimizations used by x264 and FFmpeg. Highly recommended or your resulting build may be very slow.
-
-If your repository provides yasm version ≥ 1.2.0 then you can install that instead of compiling:
-
-sudo apt-get install yasm
-
-Otherwise you can compile:
-
-cd ~/ffmpeg_sources
-wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
-tar xzvf yasm-1.3.0.tar.gz
-cd yasm-1.3.0
-./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin"
-make
-make install
-
-libx264
-
-H.264 video encoder. See the H.264 Encoding Guide for more information and usage examples.
-
-Requires ffmpeg to be configured with --enable-gpl --enable-libx264.
-
-If your repository provides libx264-dev version ≥ 118 then you can install that instead of compiling:
-
-sudo apt-get install libx264-dev
-
-Otherwise you can compile:
-
-cd ~/ffmpeg_sources
-wget http://download.videolan.org/pub/x264/snapshots/last_x264.tar.bz2
-tar xjvf last_x264.tar.bz2
-cd x264-snapshot*
-PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --disable-opencl
-PATH="$HOME/bin:$PATH" make
-make install
-
-libx265
-
-H.265/HEVC video encoder. See the H.265 Encoding Guide for more information and usage examples.
-
-If your repository provides libx265-dev version ≥ 68 then you can install that instead of compiling:
-
-sudo apt-get install libx265-dev
-
-Otherwise you can compile:
-
-sudo apt-get install cmake mercurial
-cd ~/ffmpeg_sources
-hg clone https://bitbucket.org/multicoreware/x265
-cd ~/ffmpeg_sources/x265/build/linux
-PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED:bool=off ../../source
-make
-make install
-
-libfdk-aac
-
-AAC audio encoder. See the AAC Audio Encoding Guide for more information and usage examples.
-
-Requires ffmpeg to be configured with --enable-libfdk-aac (and --enable-nonfree if you also included --enable-gpl).
-
-If your repository provides libfdk-aac-dev then you can install that instead of compiling:
-
-sudo apt-get install libfdk-aac-dev
-
-Otherwise you can compile:
-
-cd ~/ffmpeg_sources
-wget -O fdk-aac.tar.gz https://github.com/mstorsjo/fdk-aac/tarball/master
-tar xzvf fdk-aac.tar.gz
-cd mstorsjo-fdk-aac*
-autoreconf -fiv
-./configure --prefix="$HOME/ffmpeg_build" --disable-shared
-make
-make install
-
-libmp3lame
-
-MP3 audio encoder.
-
-Requires ffmpeg to be configured with --enable-libmp3lame.
-
-If your repository provides libmp3lame-dev version ≥ 3.98.3 then you can install that instead of compiling:
-
-sudo apt-get install libmp3lame-dev
-
-Otherwise you can compile:
-
-sudo apt-get install nasm
-cd ~/ffmpeg_sources
-wget http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz
-tar xzvf lame-3.99.5.tar.gz
-cd lame-3.99.5
-./configure --prefix="$HOME/ffmpeg_build" --enable-nasm --disable-shared
-make
-make install
-
-libopus
-
-Opus audio decoder and encoder.
-
-Requires ffmpeg to be configured with --enable-libopus.
-
-If your repository provides libopus-dev version ≥ 1.1 then you can install that instead of compiling:
-
-sudo apt-get install libopus-dev
-
-Otherwise you can compile:
-
-cd ~/ffmpeg_sources
-wget http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz
-tar xzvf opus-1.1.4.tar.gz
-cd opus-1.1.4
-./configure --prefix="$HOME/ffmpeg_build" --disable-shared
-make
-make install
-
-libvpx
-
-VP8/VP9 video encoder and decoder. See the VP8 Video Encoding Guide for more information and usage examples.
-
-Requires ffmpeg to be configured with --enable-libvpx.
-
-If your repository provides libvpx-dev version ≥ 0.9.7 then you can install that instead of compiling:
-
-sudo apt-get install libvpx-dev
-
-Otherwise you can compile:
-
-cd ~/ffmpeg_sources
-wget http://storage.googleapis.com/downloads.webmproject.org/releases/webm/libvpx-1.6.1.tar.bz2
-tar xjvf libvpx-1.6.1.tar.bz2
-cd libvpx-1.6.1
-PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests
-PATH="$HOME/bin:$PATH" make
-make install
-
-ffmpeg
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-BUILDING FFMPEG FRMOM SOURCE WITH PRPER OPTIONS!
+$: sudo apt-get update
+$: sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev 
+$: sudo apt-get update -y install libsdl2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev
+$: sudo apt-get -y install libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev
+
+Now make a directory.
+
+$: mkdir ~/ffmpeg_sources
+
+$: cd ~/ffmpeg_sources
+$: wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
+$: tar xzvf yasm-1.3.0.tar.gz
+$: cd yasm-1.3.0
+$: ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin"
+$: make
+$: make install
+
+libx264:
+
+$: cd ~/ffmpeg_sources
+$: wget http://download.videolan.org/pub/x264/snapshots/last_x264.tar.bz2
+$: tar xjvf last_x264.tar.bz2
+$: cd x264-snapshot*
+$: PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --disable-opencl
+$: PATH="$HOME/bin:$PATH" make
+$: make install
+
+libx265:
+
+$: sudo apt-get install cmake mercurial
+$: cd ~/ffmpeg_sources
+$: hg clone https://bitbucket.org/multicoreware/x265
+$: cd ~/ffmpeg_sources/x265/build/linux
+$: PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED:bool=off ../../source
+
+$: make
+$: make install
+
+libfdk-aac:
+
+$: cd ~/ffmpeg_sources
+$: wget -O fdk-aac.tar.gz https://github.com/mstorsjo/fdk-aac/tarball/master
+$: tar xzvf fdk-aac.tar.gz
+$: cd mstorsjo-fdk-aac*
+$: autoreconf -fiv
+$: ./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+$: make
+$: make install
+
+libmp3lame:
+
+$: sudo apt-get install nasm
+$: cd ~/ffmpeg_sources
+$: wget http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz
+$: tar xzvf lame-3.99.5.tar.gz
+$: cd lame-3.99.5
+$: ./configure --prefix="$HOME/ffmpeg_build" --enable-nasm --disable-shared
+$: make
+$: make install
+
+libopus:
+
+$: cd ~/ffmpeg_sources
+$: wget http://downloads.xiph.org/releases/opus/opus-1.1.4.tar.gz
+$: tar xzvf opus-1.1.4.tar.gz
+$: cd opus-1.1.4
+$: ./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+$: make
+$: make install
+
+libvpx:
+
+$: cd ~/ffmpeg_sources
+$: wget http://storage.googleapis.com/downloads.webmproject.org/releases/webm/libvpx-1.6.1.tar.bz2
+$: tar xjvf libvpx-1.6.1.tar.bz2
+$: cd libvpx-1.6.1
+$: PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests
+$: PATH="$HOME/bin:$PATH" make
+$: make install
+
+
+***BUILDING FFMPEG FRMOM SOURCE WITH PRPER OPTIONS!***
 
 STARTFRESH: rm -rf ~/ffmpeg_build ~/ffmpeg_sources ~/bin/{ffmpeg,ffprobe,ffplay,ffserver,vsyasm,x264,x265,yasm,ytasm}
 
-$ cd ~/ffmpeg_sources
-$ wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
-$ tar xjvf ffmpeg-snapshot.tar.bz2
-$ cd ffmpeg
-
-PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
+$: cd ~/ffmpeg_sources
+$: wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
+$: tar xjvf ffmpeg-snapshot.tar.bz2
+$: cd ffmpeg
+$: PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
   --prefix="$HOME/ffmpeg_build" \
   --pkg-config-flags="--static" \
   --extra-cflags="-I$HOME/ffmpeg_build/include" \
-  --extra-cflags="-I/usr/local/
-  
-  
-  
-  /include/" \
+  --extra-cflags="-I/usr/local/cuda/include/" \
   --extra-ldflags="-L/usr/local/cuda/lib64/" \
   --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
   --bindir="$HOME/bin" \
@@ -344,7 +246,7 @@ $: make install
 $: hash -r
 
 
-*COMMAND TO UNINSTALL FOR UPDATE!!
+*COMMAND TO UNINSTALL AND START FRESH!
 
 $: rm -rf ~/ffmpeg_build ~/ffmpeg_sources ~/bin/{ffmpeg,ffprobe,ffplay,ffserver,vsyasm,x264,x265,yasm,ytasm}
 
@@ -355,14 +257,15 @@ NOW GO BUILD OBS!!! YOU ARE ALMOST DONE!!!
 
 $: sudo dpkg -r obs-studio 
 
+OK ready to build now!
 
-$:git clone https://github.com/jp9000/obs-studio.git
-$:cd obs-studio
-$:mkdir build && cd build
-$:cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr ..
-$:make -j4
-$:sudo checkinstall --pkgname=obs-studio --fstrans=no --backup=no \
+$: git clone https://github.com/jp9000/obs-studio.git
+$: cd obs-studio
+$: mkdir build && cd build
+$: cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr ..
+$: make -j4
+$: sudo checkinstall --pkgname=obs-studio --fstrans=no --backup=no \
        --pkgversion="$(date +%Y%m%d)-git" --deldoc=yes
 
 
-THATS IT! YOU NOW CAN ENCODE USING NVENC ON YOUR GPU ON UBUNTU, MINT and DEBIAN.
+THATS IT! YOU NOW CAN ENCODE USING NVENC ON YOUR GPU ON UBUNTU, MINT and DEBIAN! This was a must needed guide for the community! Thanks for following along.
