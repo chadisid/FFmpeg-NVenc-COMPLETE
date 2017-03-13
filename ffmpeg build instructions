@@ -1,0 +1,93 @@
+sudo cp nvenc_5.0.1_sdk/Samples/common/inc/*.h
+/usr/local/include
+
+
+Build a WORKING and UP TO DATE FFmpeg with NVencoding + Cuda + OpenGL + libnpp + everything else important also WORKING and UP TO DATE built from source. 
+
+
+GET SDK 7.1.9 FROM NVIDIA AND BUILD THE SDK:
+
+$: cd Downloads
+
+/Downloads$: wget https://developer.nvidia.com/designworks/video_codec_sdk/downloads/v7.1
+
+
+
+
+$: cd ~/Downloads/Video_Codec_SDK_7.1.9/Samples
+
+$: make
+
+ now move files where they need to be: 
+
+
+
+
+
+$ sudo cp ~/Downloads/Video_Codec_SDK_7.1.9/Samples/common/inc/*.h /usr/local/include
+
+usr/local/cuda/include  mv cuda.h to usr/local/include make sure you have installed cuda 7.5 already
+
+ install cuda and find cuda.h and cuvid.h and also put the inside /usr/local/include
+
+ Build all sources for FFMPG (OPTIONAL BUT RECCOMENDED)
+
+ 
+BUILDING FFMPEG FRMOM SOURCE: https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
+
+STARTFRESH: rm -rf ~/ffmpeg_build ~/ffmpeg_sources ~/bin/{ffmpeg,ffprobe,ffplay,ffserver,vsyasm,x264,x265,yasm,ytasm}
+
+
+$ cd ~/ffmpeg_sources
+$ wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
+$ tar xjvf ffmpeg-snapshot.tar.bz2
+$ cd ffmpeg
+
+PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
+  --prefix="$HOME/ffmpeg_build" \
+  --pkg-config-flags="--static" \
+  --extra-cflags="-I$HOME/ffmpeg_build/include" \
+  --extra-cflags="-I/usr/local/cuda/include/" \
+  --extra-ldflags="-L/usr/local/cuda/lib64/" \
+  --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
+  --bindir="$HOME/bin" \
+  --enable-gpl \
+  --enable-nonfree \
+  --enable-cuda \
+  --enable-nvenc \
+  --enable-opengl \
+  --enable-libnpp \
+  --enable-libass \
+  --enable-libfdk-aac \
+  --enable-libfreetype \
+  --enable-libmp3lame \
+  --enable-libopus \
+  --enable-libtheora \
+  --enable-libvorbis \
+  --enable-libvpx \
+  --enable-libx264 \
+  --enable-libx265 
+ 
+PATH="$HOME/bin:$PATH" make
+make install
+hash -r
+
+
+*COMMAND TO UNINSTALL FOR UPDATE!!
+rm -rf ~/ffmpeg_build ~/ffmpeg_sources ~/bin/{ffmpeg,ffprobe,ffplay,ffserver,vsyasm,x264,x265,yasm,ytasm}
+
+
+
+NOW GO BUILD OBS!!!
+
+FIRST REMOVE OBS-STUDIO: # dpkg -r obs-studio
+
+git clone https://github.com/jp9000/obs-studio.git
+cd obs-studio
+mkdir build && cd build
+cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr ..
+make -j4
+sudo checkinstall --pkgname=obs-studio --fstrans=no --backup=no \
+       --pkgversion="$(date +%Y%m%d)-git" --deldoc=yes
+
+
