@@ -281,3 +281,6 @@ sudo checkinstall --pkgname=obs-studio --fstrans=no --backup=no \
 
 
 THATS IT! YOU NOW CAN ENCODE USING NVENC ON YOUR GPU ON UBUNTU, MINT and DEBIAN.
+
+
+gcc cmdline.h cmdline.c recording_home_stable_15_03.c -o recording_stable_15_03 -ljansson -lavfilter -lswresample -lswscale -lavdevice $(pkg-config --cflags --libs libavformat libavcodec) -lpostproc -lpthread `pkg-config --cflags --libs glib-2.0` `pkg-config --cflags --libs opus` `pkg-config --cflags --libs ogg` -levent -lrabbitmq -Wall -g
